@@ -3,6 +3,7 @@ package com.springbootweb.restapi.controllers;
 import com.springbootweb.restapi.dto.EmployeeDTO;
 import com.springbootweb.restapi.entities.EmployeeEntity;
 //import com.springbootweb.restapi.repositories.EmployeeRepository;
+import com.springbootweb.restapi.exceptions.ResourceNotFoundException;
 import com.springbootweb.restapi.services.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -41,14 +43,21 @@ public class EmployeeController {
      //   return employeeRepository.findById(id).orElse(null);
 //        return employeeService.getEmployeeById(id);
 //    }
+
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name = "employeeId") Long id){
         Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeById(id);
 //        if (employeeDTO == null) return ResponseEntity.notFound().build();
 //        return ResponseEntity.ok(employeeDTO);
         return employeeDTO
                 .map(employeeDTO1 -> ResponseEntity
-                        .ok(employeeDTO1)).orElse(ResponseEntity.notFound().build());
+                        .ok(employeeDTO1))
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id :" +id));
     }
+
+//    @ExceptionHandler(NoSuchElementException.class)
+//    public ResponseEntity<String> handleEmployeeNotFound(NoSuchElementException exception){
+//        return new ResponseEntity<>("Employee not found", HttpStatus.NOT_FOUND);
+//    }
 
     @GetMapping
 //    public String getAllEmployees(@RequestParam(required = false, name = "inputAge") Integer age,
